@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dubawa - Fact-Checking West Africa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dubawa-red': '#C41230',
+                        'dubawa-dark': '#1a1a2e',
+                        'dubawa-blue': '#16213e',
+                        'dubawa-navy': '#0f3460',
+                        'dubawa-light': '#f5f5f5',
+                        'dubawa-gray': '#6b7280',
+                        'dubawa-border': '#e5e7eb',
+                    },
+                    fontFamily: {
+                        'heading': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .hero-overlay { background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%); }
+        .nav-active { border-bottom: 2px solid #C41230; color: #C41230; }
+        .fact-badge { font-size: 0.65rem; letter-spacing: 0.05em; }
+        .trending-num { font-family: 'Playfair Display', serif; }
+        .search-overlay { backdrop-filter: blur(8px); background: rgba(0,0,0,0.7); }
+        .article-card:hover .article-img { transform: scale(1.05); }
+        .article-img { transition: transform 0.4s ease; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        .category-tab.active { background-color: #C41230; color: white; }
+        .category-tab:not(.active):hover { background-color: #fee2e2; }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+
+    <!-- Top Bar -->
+    <div class="bg-dubawa-dark text-white text-xs">
+        <div class="max-w-7xl mx-auto px-4 flex items-center justify-between py-2">
+            <div class="flex items-center gap-4">
+                <a href="#" class="hover:text-dubawa-red transition">
+                    <i data-lucide="facebook" class="w-3.5 h-3.5"></i>
+                </a>
+                <a href="#" class="hover:text-dubawa-red transition">
+                    <i data-lucide="twitter" class="w-3.5 h-3.5"></i>
+                </a>
+                <a href="#" class="hover:text-dubawa-red transition">
+                    <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                </a>
+                <a href="#" class="hover:text-dubawa-red transition">
+                    <i data-lucide="youtube" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+            <div class="hidden md:flex items-center gap-4 text-gray-300">
+                <a href="#" class="hover:text-white transition">About Us</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="hover:text-white transition">Contact</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="hover:text-white transition">Submit a Claim</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="hover:text-white transition">Donate</a>
+            </div>
+            <button id="searchBtn" class="flex items-center gap-1 hover:text-dubawa-red transition">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                <span class="hidden sm:inline">Search</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Overlay -->
+    <div id="searchOverlay" class="fixed inset-0 z-50 search-overlay hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 fade-in">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Search Dubawa</h3>
+                <button id="closeSearch" class="p-1 hover:bg-gray-100 rounded-lg transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="relative">
+                <input type="text" placeholder="Search fact-checks, articles, topics..." class="w-full border-2 border-dubawa-red rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-dubawa-red/30 text-sm">
+                <i data-lucide="search" class="w-5 h-5 text-dubawa-red absolute right-4 top-1/2 -translate-y-1/2"></i>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <p class="font-medium text-gray-700 mb-2">Popular searches:</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs cursor-pointer hover:bg-dubawa-red hover:text-white transition">Election Claims</span>
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs cursor-pointer hover:bg-dubawa-red hover:text-white transition">Health Misinformation</span>
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs cursor-pointer hover:bg-dubawa-red hover:text-white transition">COVID-19</span>
+                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs cursor-pointer hover:bg-dubawa-red hover:text-white transition">Political Claims</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="bg-white border-b border-dubawa-border sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between py-3">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-1">
+                    <div class="flex flex-col">
+                        <span class="text-2xl md:text-3xl font-black text-dubawa-red tracking-tight" style="font-family:'Playfair Display',serif;">DUBAWA</span>
+                        <span class="text-[9px] md:text-[10px] text-dubawa-gray tracking-widest uppercase -mt-1">Fact-Checking West Africa</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden lg:flex items-center gap-1">
+                    <a href="#" class="nav-active px-3 py-2 text-sm font-medium transition">Home</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-dubawa-red transition">Fact-Checks</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-dubawa-red transition">Articles</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-dubawa-red transition">Videos</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-dubawa-red transition">Reports</a>
+                    <a href="#" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-dubawa-red transition">Resources</a>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <a href="#" class="hidden md:inline-flex bg-dubawa-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition">
+                        Submit a Claim
+                    </a>
+                    <button id="mobileMenuBtn" class="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 z-50 bg-white hidden">
+        <div class="flex items-center justify-between p-4 border-b">
+            <span class="text-2xl font-black text-dubawa-red" style="font-family:'Playfair Display',serif;">DUBAWA</span>
+            <button id="closeMobileMenu" class="p-2 hover:bg-gray-100 rounded-lg">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="p-4 space-y-1">
+            <a href="#" class="block px-4 py-3 text-dubawa-red font-medium bg-red-50 rounded-lg">Home</a>
+            <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">Fact-Checks</a>
+            <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">Articles</a>
+            <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">Videos</a>
+            <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">Reports</a>
+            <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg">Resources</a>
+            <div class="pt-4">
+                <a href="#" class="block text-center bg-dubawa-red text-white px-4 py-3 rounded-lg font-semibold">Submit a Claim</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Featured -->
+            <div class="lg:col-span-2 article-card group cursor-pointer">
+                <div class="relative rounded-xl overflow-hidden aspect-[16/9]">
+                    <img src="http://static.photos/politics/1200x630/101" alt="Featured story" class="article-img w-full h-full object-cover">
+                    <div class="hero-overlay absolute inset-0"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                        <span class="inline-block bg-dubawa-red text-white text-xs font-bold px-3 py-1 rounded fact-badge uppercase tracking-wider mb-3">Fact-Check</span>
+                        <h1 class="text-white text-xl md:text-3xl font-bold leading-tight mb-2 group-hover:underline decoration-2" style="font-family:'Playfair Display',serif;">
+                            Claim: Viral Video Shows Nigerian Soldiers Attacking Civilians in Lagos
+                        </h1>
+                        <p class="text-gray-300 text-sm md:text-base line-clamp-2 mb-3">
+                            A viral video shared across social media platforms claims to show Nigerian soldiers attacking unarmed civilians. Our investigation reveals the full story.
+                        </p>
+                        <div class="flex items-center gap-3 text-gray-400 text-xs">
+                            <span>By <strong class="text-white">Ada Promise</strong></span>
+                            <span>•</span>
+                            <span>Jan 15, 2025</span>
+                            <span class="inline-block bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-bold text-[10px] uppercase">Misleading</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Featured -->
+            <div class="flex flex-col gap-4">
+                <div class="article-card group cursor-pointer flex-1">
+                    <div class="relative rounded-xl overflow-hidden h-full min-h-[180px]">
+                        <img src="http://static.photos/nature/640x360/55" alt="Side story" class="article-img w-full h-full object-cover">
+                        <div class="hero-overlay absolute inset-0"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <span class="inline-block bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded fact-badge uppercase tracking-wider mb-2">Verified</span>
+                            <h3 class="text-white text-sm md:text-base font-semibold leading-snug group-hover:underline">
+                                No, WHO Did Not Issue Warning Against Drinking Water in Nigeria
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="article-card group cursor-pointer flex-1">
+                    <div class="relative rounded-xl overflow-hidden h-full min-h-[180px]">
+                        <img src="http://static.photos/technology/640x360/77" alt="Side story" class="article-img w-full h-full object-cover">
+                        <div class="hero-overlay absolute inset-0"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <span class="inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded fact-badge uppercase tracking-wider mb-2">False</span>
+                            <h3 class="text-white text-sm md:text-base font-semibold leading-snug group-hover:underline">
+                                Claim That 5G Networks Cause Cancer Is Not Supported by Scientific Evidence
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verdict Badges Bar -->
+    <section class="bg-dubawa-dark py-4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center gap-4 overflow-x-auto scrollbar-hide">
+                <span class="text-gray-400 text-sm font-medium whitespace-nowrap">Verdicts:</span>
+                <a href="#" class="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase whitespace-nowrap hover:bg-red-700 transition">False</a>
+                <a href="#" class="bg-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase whitespace-nowrap hover:bg-yellow-600 transition">Misleading</a>
+                <a href="#" class="bg-green-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase whitespace-nowrap hover:bg-green-700 transition">True</a>
+                <a href="#" class="bg-orange-500 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase whitespace-nowrap hover:bg-orange-600 transition">Unproven</a>
+                <a href="#" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase whitespace-nowrap hover:bg-blue-700 transition">Not Verified</a>
+                <a href="#" class="bg-purple-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase whitespace-nowrap hover:bg-purple-700 transition">Altered</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Content -->
+            <div class="lg:col-span-2 space-y-10">
+
+                <!-- Latest Fact-Checks -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2" style="font-family:'Playfair Display',serif;">
+                            <span class="w-1.5 h-7 bg-dubawa-red rounded-full"></span>
+                            Latest Fact-Checks
+                        </h2>
+                        <a href="#" class="text-dubawa-red text-sm font-medium hover:underline flex items-center gap-1">
+                            View All <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Card 1 -->
+                        <article class="article-card group cursor-pointer bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="relative overflow-hidden aspect-[16/10]">
+                                <img src="http://static.photos/people/640x360/23" alt="Article" class="article-img w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">False</span>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Politics</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    No, President Tinubu Did Not Announce Free Fuel for All Nigerians
+                                </h3>
+                                <p class="mt-2 text-sm text-gray-500 line-clamp-2">
+                                    A widely circulated message claims President Tinubu announced free fuel distribution starting January 2025.
+                                </p>
+                                <div class="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>Jan 14, 2025</span>
+                                    <span>•</span>
+                                    <span>5 min read</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Card 2 -->
+                        <article class="article-card group cursor-pointer bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="relative overflow-hidden aspect-[16/10]">
+                                <img src="http://static.photos/medical/640x360/44" alt="Article" class="article-img w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">Misleading</span>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Health</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    Claim: Drinking Warm Water With Lemon Cures Diabetes — Mostly Misleading
+                                </h3>
+                                <p class="mt-2 text-sm text-gray-500 line-clamp-2">
+                                    While lemon water has health benefits, claiming it cures diabetes is misleading and dangerous.
+                                </p>
+                                <div class="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>Jan 13, 2025</span>
+                                    <span>•</span>
+                                    <span>4 min read</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Card 3 -->
+                        <article class="article-card group cursor-pointer bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="relative overflow-hidden aspect-[16/10]">
+                                <img src="http://static.photos/education/640x360/88" alt="Article" class="article-img w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">True</span>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Education</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    Yes, Nigeria's Literacy Rate Has Improved Since 2015 — Data Confirms
+                                </h3>
+                                <p class="mt-2 text-sm text-gray-500 line-clamp-2">
+                                    Data from UNESCO and the National Bureau of Statistics confirms improvements in literacy rates.
+                                </p>
+                                <div class="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>Jan 12, 2025</span>
+                                    <span>•</span>
+                                    <span>6 min read</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Card 4 -->
+                        <article class="article-card group cursor-pointer bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="relative overflow-hidden aspect-[16/10]">
+                                <img src="http://static.photos/finance/640x360/66" alt="Article" class="article-img w-full h-full object-cover">
+                                <span class="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">Unproven</span>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Economy</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    Claim: CBN Plans to Redesign the Naira Again in 2025 — Unproven
+                                </h3>
+                                <p class="mt-2 text-sm text-gray-500 line-clamp-2">
+                                    Reports claim the Central Bank is planning another currency redesign, but no official confirmation exists.
+                                </p>
+                                <div class="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>Jan 11, 2025</span>
+                                    <span>•</span>
+                                    <span>3 min read</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Category Filter Section -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2" style="font-family:'Playfair Display',serif;">
+                            <span class="w-1.5 h-7 bg-dubawa-red rounded-full"></span>
+                            Articles & Analysis
+                        </h2>
+                    </div>
+
+                    <!-- Category Tabs -->
+                    <div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide pb-2">
+                        <button class="category-tab active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition" data-category="all">All</button>
+                        <button class="category-tab px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 text-gray-700 transition" data-category="politics">Politics</button>
+                        <button class="category-tab px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 text-gray-700 transition" data-category="health">Health</button>
+                        <button class="category-tab px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 text-gray-700 transition" data-category="tech">Technology</button>
+                        <button class="category-tab px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 text-gray-700 transition" data-category="economy">Economy</button>
+                    </div>
+
+                    <!-- Article List -->
+                    <div class="space-y-4" id="articlesContainer">
+                        <article class="group cursor-pointer flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-200">
+                            <div class="w-28 h-28 md:w-36 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                                <img src="http://static.photos/science/320x240/11" alt="Article" class="article-img w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Misinformation</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    How AI-Generated Images Are Fueling Election Misinformation in West Africa
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500 line-clamp-2 hidden md:block">
+                                    Artificial intelligence tools are making it easier to create convincing fake images that spread rapidly on social media.
+                                </p>
+                                <div class="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>By <strong class="text-gray-600">Ibrahim Musa</strong></span>
+                                    <span>•</span>
+                                    <span>Jan 10, 2025</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="group cursor-pointer flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-200">
+                            <div class="w-28 h-28 md:w-36 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                                <img src="http://static.photos/cityscape/320x240/33" alt="Article" class="article-img w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Governance</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    Understanding Nigeria's Freedom of Information Act: A Guide for Journalists
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500 line-clamp-2 hidden md:block">
+                                    A comprehensive guide on how journalists can leverage the FOI Act for investigative reporting.
+                                </p>
+                                <div class="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>By <strong class="text-gray-600">Chioma Eze</strong></span>
+                                    <span>•</span>
+                                    <span>Jan 9, 2025</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="group cursor-pointer flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-200">
+                            <div class="w-28 h-28 md:w-36 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                                <img src="http://static.photos/wellness/320x240/22" alt="Article" class="article-img w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Health</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    Fact-Checking WhatsApp Health Claims: A Step-by-Step Methodology
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500 line-clamp-2 hidden md:block">
+                                    Learn the systematic approach used by fact-checkers to verify health claims circulating on WhatsApp.
+                                </p>
+                                <div class="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>By <strong class="text-gray-600">Dr. Amara Okafor</strong></span>
+                                    <span>•</span>
+                                    <span>Jan 8, 2025</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="group cursor-pointer flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-200">
+                            <div class="w-28 h-28 md:w-36 md:h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                                <img src="http://static.photos/technology/320x240/99" alt="Article" class="article-img w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="text-xs text-dubawa-red font-semibold uppercase">Technology</span>
+                                <h3 class="mt-1 font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                    Deepfakes in African Elections: The Growing Threat of Synthetic Media
+                                </h3>
+                                <p class="mt-1 text-sm text-gray-500 line-clamp-2 hidden md:block">
+                                    As deepfake technology advances, its impact on democratic processes across Africa is becoming a critical concern.
+                                </p>
+                                <div class="mt-2 flex items-center gap-2 text-xs text-gray-400">
+                                    <span>By <strong class="text-gray-600">Kofi Mensah</strong></span>
+                                    <span>•</span>
+                                    <span>Jan 7, 2025</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="mt-6 text-center">
+                        <button class="px-8 py-3 border-2 border-dubawa-red text-dubawa-red font-semibold rounded-lg hover:bg-dubawa-red hover:text-white transition">
+                            Load More Articles
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Video Section -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2" style="font-family:'Playfair Display',serif;">
+                            <span class="w-1.5 h-7 bg-dubawa-red rounded-full"></span>
+                            Fact-Check Videos
+                        </h2>
+                        <a href="#" class="text-dubawa-red text-sm font-medium hover:underline flex items-center gap-1">
+                            All Videos <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="article-card group cursor-pointer">
+                            <div class="relative rounded-xl overflow-hidden aspect-video">
+                                <img src="http://static.photos/indoor/640x360/15" alt="Video thumbnail" class="article-img w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition">
+                                    <div class="w-12 h-12 bg-dubawa-red rounded-full flex items-center justify-center">
+                                        <i data-lucide="play" class="w-5 h-5 text-white ml-0.5"></i>
+                                    </div>
+                                </div>
+                                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">4:32</span>
+                            </div>
+                            <h4 class="mt-2 font-semibold text-sm leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                How to Spot Fake News on Social Media
+                            </h4>
+                        </div>
+                        <div class="article-card group cursor-pointer">
+                            <div class="relative rounded-xl overflow-hidden aspect-video">
+                                <img src="http://static.photos/outdoor/640x360/47" alt="Video thumbnail" class="article-img w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition">
+                                    <div class="w-12 h-12 bg-dubawa-red rounded-full flex items-center justify-center">
+                                        <i data-lucide="play" class="w-5 h-5 text-white ml-0.5"></i>
+                                    </div>
+                                </div>
+                                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">6:15</span>
+                            </div>
+                            <h4 class="mt-2 font-semibold text-sm leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                Debunking COVID-19 Vaccine Myths in Nigeria
+                            </h4>
+                        </div>
+                        <div class="article-card group cursor-pointer">
+                            <div class="relative rounded-xl overflow-hidden aspect-video">
+                                <img src="http://static.photos/travel/640x360/29" alt="Video thumbnail" class="article-img w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition">
+                                    <div class="w-12 h-12 bg-dubawa-red rounded-full flex items-center justify-center">
+                                        <i data-lucide="play" class="w-5 h-5 text-white ml-0.5"></i>
+                                    </div>
+                                </div>
+                                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-0.5 rounded">3:48</span>
+                            </div>
+                            <h4 class="mt-2 font-semibold text-sm leading-snug line-clamp-2 group-hover:text-dubawa-red transition">
+                                Verifying Election Results: The Fact-Check Process
+                            </h4>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="space-y-8">
+
+                <!-- Trending -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-dubawa-red"></i>
+                        Trending Fact-Checks
+                    </h3>
+                    <div class="space-y-4">
+                        <a href="#" class="flex gap-3 group">
+                            <span class="trending-num text-2xl font-bold text-dubawa-red/30 group-hover:text-dubawa-red transition">01</span>
+                            <div>
+                                <h4 class="font-medium text-sm leading-snug group-hover:text-dubawa-red transition line-clamp-2">
+                                    No, the Nigerian Government Has Not Banned Twitter Again
+                                </h4>
+                                <span class="inline-block bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 uppercase">False</span>
+                            </div>
+                        </a>
+                        <a href="#" class="flex gap-3 group">
+                            <span class="trending-num text-2xl font-bold text-dubawa-red/30 group-hover:text-dubawa-red transition">02</span>
+                            <div>
+                                <h4 class="font-medium text-sm leading-snug group-hover:text-dubawa-red transition line-clamp-2">
+                                    Was Lagos Flood Caused by HAARP? No, Here Are the Facts
+                                </h4>
+                                <span class="inline-block bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 uppercase">False</span>
+                            </div>
+                        </a>
+                        <a href="#" class="flex gap-3 group">
+                            <span class="trending-num text-2xl font-bold text-dubawa-red/30 group-hover:text-dubawa-red transition">03</span>
+                            <div>
+                                <h4 class="font-medium text-sm leading-snug group-hover:text-dubawa-red transition line-clamp-2">
+                                    Image of Ghana's New Airport Terminal Is Actually From Singapore
+                                </h4>
+                                <span class="inline-block bg-yellow-100 text-yellow-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 uppercase">Misleading</span>
+                            </div>
+                        </a>
+                        <a href="#" class="flex gap-3 group">
+                            <span class="trending-num text-2xl font-bold text-dubawa-red/30 group-hover:text-dubawa-red transition">04</span>
+                            <div>
+                                <h4 class="font-medium text-sm leading-snug group-hover:text-dubawa-red transition line-clamp-2">
+                                    Yes, Nigeria's Inflation Rate Reached 28-Year High in 2024
+                                </h4>
+                                <span class="inline-block bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 uppercase">True</span>
+                            </div>
+                        </a>
+                        <a href="#" class="flex gap-3 group">
+                            <span class="trending-num text-2xl font-bold text-dubawa-red/30 group-hover:text-dubawa-red transition">05</span>
+                            <div>
+                                <h4 class="font-medium text-sm leading-snug group-hover:text-dubawa-red transition line-clamp-2">
+                                    Claim: Eating Bitter Kola Prevents Ebola — Unproven
+                                </h4>
+                                <span class="inline-block bg-orange-100 text-orange-700 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 uppercase">Unproven</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Fact-Check Stats -->
+                <div class="bg-dubawa-dark rounded-xl p-5 text-white">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-dubawa-red"></i>
+                        Our Impact in Numbers
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="text-center p-3 bg-white/10 rounded-lg">
+                            <div class="text-3xl font-black text-dubawa-red" style="font-family:'Playfair Display',serif;">2,847</div>
+                            <div class="text-xs text-gray-300 mt-1">Fact-Checks Published</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-xl font-bold text-red-400">64%</div>
+                                <div class="text-[10px] text-gray-300 mt-1">Rated False</div>
+                            </div>
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-xl font-bold text-yellow-400">18%</div>
+                                <div class="text-[10px] text-gray-300 mt-1">Misleading</div>
+                            </div>
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-xl font-bold text-green-400">12%</div>
+                                <div class="text-[10px] text-gray-300 mt-1">Verified True</div>
+                            </div>
+                            <div class="text-center p-3 bg-white/10 rounded-lg">
+                                <div class="text-xl font-bold text-blue-400">6%</div>
+                                <div class="text-[10px] text-gray-300 mt-1">Unproven</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="bg-gradient-to-br from-dubawa-red to-red-700 rounded-xl p-5 text-white">
+                    <h3 class="text-lg font-bold mb-2">
+                        <i data-lucide="mail" class="w-5 h-5 inline mr-1"></i>
+                        Stay Informed
+                    </h3>
+                    <p class="text-sm text-red-100 mb-4">
+                        Get weekly fact-checks and media literacy tips delivered to your inbox.
+                    </p>
+                    <form id="newsletterForm" class="space-y-3">
+                        <input type="email" placeholder="Your email address" class="w-full px-4 py-2.5 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-white/50" required>
+                        <button type="submit" class="w-full bg-white text-dubawa-red font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition text-sm">
+                            Subscribe Now
+                        </button>
+                    </form>
+                    <p id="newsletterMsg" class="text-sm text-center mt-2 hidden"></p>
+                    <p class="text-[10px] text-red-200 mt-3">No spam. Unsubscribe anytime.</p>
+                </div>
+
+                <!-- Countries -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="globe" class="w-5 h-5 text-dubawa-red"></i>
+                        Our Coverage
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="#" class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition group">
+                            <span class="text-2xl">🇳🇬</span>
+                            <div>
+                                <div class="font-medium text-sm group-hover:text-dubawa-red transition">Nigeria</div>
+                                <div class="text-xs text-gray-400">1,247 fact-checks</div>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition group">
+                            <span class="text-2xl">🇬🇭</span>
+                            <div>
+                                <div class="font-medium text-sm group-hover:text-dubawa-red transition">Ghana</div>
+                                <div class="text-xs text-gray-400">634 fact-checks</div>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition group">
+                            <span class="text-2xl">🇸🇳</span>
+                            <div>
+                                <div class="font-medium text-sm group-hover:text-dubawa-red transition">Senegal</div>
+                                <div class="text-xs text-gray-400">412 fact-checks</div>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition group">
+                            <span class="text-2xl">🇰🇪</span>
+                            <div>
+                                <div class="font-medium text-sm group-hover:text-dubawa-red transition">Kenya</div>
+                                <div class="text-xs text-gray-400">298 fact-checks</div>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition group">
+                            <span class="text-2xl">🇿🇦</span>
+                            <div>
+                                <div class="font-medium text-sm group-hover:text-dubawa-red transition">South Africa</div>
+                                <div class="text-xs text-gray-400">256 fact-checks</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Social Follow -->
+                <div class="bg-white border border-gray-200 rounded-xl p-5">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="share-2" class="w-5 h-5 text-dubawa-red"></i>
+                        Follow Us
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="#" class="flex items-center gap-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+                            <i data-lucide="facebook" class="w-4 h-4"></i> Facebook
+                        </a>
+                        <a href="#" class="flex items-center gap-2 p-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition text-sm font-medium">
+                            <i data-lucide="twitter" class="w-4 h-4"></i> Twitter
+                        </a>
+                        <a href="#" class="flex items-center gap-2 p-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition text-sm font-medium">
+                            <i data-lucide="instagram" class="w-4 h-4"></i> Instagram
+                        </a>
+                        <a href="#" class="flex items-center gap-2 p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium">
+                            <i data-lucide="youtube" class="w-4 h-4"></i> YouTube
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- CTA Banner -->
+    <section class="bg-dubawa-dark py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="text-white text-center md:text-left">
+                    <h2 class="text-2xl md:text-3xl font-bold" style="font-family:'Playfair Display',serif;">
+                        Spot a Claim That Needs Checking?
+                    </h2>
+                    <p class="text-gray-300 mt-2 max-w-lg">
+                        Help us fight misinformation. Submit any claim, rumor, or piece of information you've seen online and our team will investigate it.
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="#" class="bg-dubawa-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition flex items-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        Submit a Claim
+                    </a>
+                    <a href="#" class="border-2 border-white/30 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="bg-gray-50 py-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <h3 class="text-center text-sm font-semibold text-gray-400 uppercase tracking-widest mb-8">Trusted By & Partners With</h3>
+            <div class="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+                <div class="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                    <span class="font-bold text-lg">IFCN</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition">
+                    <i data-lucide="newspaper" class="w-8 h-8"></i>
+                    <span class="font-bold text-lg">BBC</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition">
+                    <i data-lucide="radio" class="w-8 h-8"></i>
+                    <span class="font-bold text-lg">AFP</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition">
+                    <i data-lucide="globe" class="w-8 h-8"></i>
+                    <span class="font-bold text-lg">Google</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition">
+                    <i data-lucide="database" class="w-8 h-8"></i>
+                    <span class="font-bold text-lg">Meta</span>
+                </div>
+                <div class="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition">
+                    <i data-lucide="landmark" class="w-8 h-8"></i>
+                    <span class="font-bold text-lg">UNESCO</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dubawa-dark text-white">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- About -->
+                <div>
+                    <div class="mb-4">
+                        <span class="text-2xl font-black text-white" style="font-family:'Playfair Display',serif;">DUBAWA</span>
+                        <p class="text-[10px] text-gray-400 tracking-widest uppercase">Fact-Checking West Africa</p>
+                    </div>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                        Dubawa is West Africa's premier independent fact-checking platform. We verify claims made by public figures, institutions, and viral social media content.
+                    </p>
+                    <div class="flex items-center gap-3 mt-4">
+                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-dubawa-red transition">
+                            <i data-lucide="facebook" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-dubawa-red transition">
+                            <i data-lucide="twitter" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-dubawa-red transition">
+                            <i data-lucide="instagram" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center hover:bg-dubawa-red transition">
+                            <i data-lucide="linkedin" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Fact-Checks</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Articles</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Videos</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Reports</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Resources</a></li>
+                    </ul>
+                </div>
+
+                <!-- About -->
+                <div>
+                    <h4 class="font-semibold mb-4">About</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Our Team</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Methodology</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Editorial Policy</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Partnerships</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-white transition">Careers</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-2">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-dubawa-red mt-0.5 flex-shrink-0"></i>
+                            <span class="text-sm text-gray-400">No 2, Prof. Ade Ajayi Way, Ikeja, Lagos, Nigeria</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="mail" class="w-4 h-4 text-dubawa-red flex-shrink-0"></i>
+                            <a href="mailto:info@dubawa.org" class="text-sm text-gray-400 hover:text-white transition">info@dubawa.org</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i data-lucide="phone" class="w-4 h-4 text-dubawa-red flex-shrink-0"></i>
+                            <span class="text-sm text-gray-400">+234 801 234 5678</span>
+                        </li>
+                    </ul>
+                    <div class="mt-5">
+                        <a href="#" class="inline-flex items-center gap-2 bg-dubawa-red px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                            Submit a Claim
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
+                <p class="text-xs text-gray-500">© 2025 Dubawa. All rights reserved. A project of the Centre for Journalism Innovation and Development (CJID).</p>
+                <div class="flex items-center gap-4 text-xs text-gray-500">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-dubawa-red text-white rounded-full shadow-lg hover:bg-red-700 transition hidden items-center justify-center z-30">
+        <i data-lucide="chevron-up" class="w-5 h-5"></i>
+    </button>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        // Search overlay
+        const searchBtn = document.getElementById('searchBtn');
+        const searchOverlay = document.getElementById('searchOverlay');
+        const closeSearch = document.getElementById('closeSearch');
+
+        searchBtn.addEventListener('click', () => {
+            searchOverlay.classList.remove('hidden');
+            searchOverlay.classList.add('flex');
+            searchOverlay.querySelector('input').focus();
+        });
+
+        closeSearch.addEventListener('click', () => {
+            searchOverlay.classList.add('hidden');
+            searchOverlay.classList.remove('flex');
+        });
+
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                searchOverlay.classList.add('hidden');
+                searchOverlay.classList.remove('flex');
+            }
+        });
+
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+        });
+
+        closeMobileMenu.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+
+        // Category tabs
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                categoryTabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.classList.add('bg-gray-100', 'text-gray-700');
+                });
+                tab.classList.add('active');
+                tab.classList.remove('bg-gray-100', 'text-gray-700');
+            });
+        });
+
+        // Newsletter form
+        const newsletterForm = document.getElementById('newsletterForm');
+        const newsletterMsg = document.getElementById('newsletterMsg');
+
+        newsletterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = newsletterForm.querySelector('input').value;
+            newsletterMsg.classList.remove('hidden');
+            newsletterMsg.textContent = '✓ Thank you for subscribing!';
+            newsletterMsg.className = 'text-sm text-center mt-2 text-green-200';
+            newsletterForm.querySelector('input').value = '';
+            setTimeout(() => {
+                newsletterMsg.classList.add('hidden');
+            }, 3000);
+        });
+
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                backToTop.classList.remove('hidden');
+                backToTop.classList.add('flex');
+            } else {
+                backToTop.classList.add('hidden');
+                backToTop.classList.remove('flex');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Keyboard shortcut for search
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchOverlay.classList.add('hidden');
+                searchOverlay.classList.remove('flex');
+                mobileMenu.classList.add('hidden');
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchOverlay.classList.remove('hidden');
+                searchOverlay.classList.add('flex');
+                searchOverlay.querySelector('input').focus();
+            }
+        });
+
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+<script src="https://deepsite.hf.co/deepsite-badge.js"></script>
+</body>
+</html>
